@@ -1,0 +1,71 @@
+{
+  "generated_at_utc": "2026-09-06T13:39:50+00:00",
+  "model_requested": "HuggingFaceTB/SmolVLM-Instruct",
+  "model_actually_loaded": "HuggingFaceTB/SmolVLM-Instruct",
+  "transformers": "4.57.6",
+  "torch": "2.11.0+cu128",
+  "python": "3.13.15",
+  "device": "Tesla T4",
+  "dtype": "torch.bfloat16",
+  "load_in_4bit": false,
+  "do_image_splitting": true,
+  "generation": {
+    "max_new_tokens": 320,
+    "do_sample": false
+  },
+  "max_image_px": 1152,
+  "system_prompt": "You are a preliminary clinical imaging assistant designed for educational and\nresearch purposes.\n\nYour task is to describe visible features in medical images and provide a cautious\npreliminary interpretation.\n\nRules:\n1. Describe only features that are reasonably visible in the provided image.\n2. Do not claim certainty when the image is ambiguous.\n3. Do not provide a definitive medical diagnosis.\n4. Do not hallucinate findings that are not visible.\n5. Clearly communicate uncertainty.\n6. Encourage professional interpretation by a qualified radiologist or healthcare\n   professional.\n7. The response must not be treated as medical advice.\n8. Use careful and professional clinical language.\n9. Do not state the patient's age, sex, clinical history or prior imaging: none of\n   that is visible in an image, and inventing it is a fabrication.\n10. If the image is not a medical image, or is too degraded to assess, say so plainly\n    and stop.\n\nStructure your response as:\nImage type: what kind of study this appears to be.\nVisible features: what can actually be seen, described objectively.\nPreliminary impression: a cautious, hedged interpretation - never a diagnosis.\nUncertainty: what is unclear, obscured, or cannot be assessed from this image.\nRecommendation: advise review by a qualified radiologist.",
+  "results": [
+    {
+      "key": "chest_normal",
+      "title": "Normal posteroanterior (PA) chest radiograph",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Normal_posteroanterior_%28PA%29_chest_radiograph_%28X-ray%29.jpg",
+      "page": "https://commons.wikimedia.org/wiki/File:Normal_posteroanterior_(PA)_chest_radiograph_(X-ray).jpg",
+      "author": "Mikael Häggström, M.D.",
+      "license": "CC0 1.0 (public domain dedication)",
+      "question": "Describe the visible findings in this image. Do not provide a definitive diagnosis.",
+      "answer": "The image shows a full-length chest x-ray of a patient. The patient's lungs appear to be clear, with no signs of any abnormalities. The ribs are visible, and the spine is also visible. The heart is located in the center of the image, and the trachea is visible. The image is well-exposed, and the details of the lungs and other structures are clearly visible.",
+      "seconds": 12.5,
+      "prompt_tokens": 1858,
+      "generated_tokens": 82,
+      "image_size": [
+        1007,
+        1152
+      ]
+    },
+    {
+      "key": "chest_pneumonia",
+      "title": "Chest radiograph showing lobar pneumonia",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/5/51/X-ray_of_lobar_pneumonia.jpg",
+      "page": "https://commons.wikimedia.org/wiki/File:X-ray_of_lobar_pneumonia.jpg",
+      "author": "Mikael Häggström, M.D.",
+      "license": "CC0 1.0 (public domain dedication)",
+      "question": "What abnormalities, if any, are visible in this chest radiograph? Describe their location and appearance without giving a diagnosis.",
+      "answer": "The chest radiograph shows a full, expanded lung field with a prominent hilum and a prominent costophrenic angle. The left lung field is also expanded, but it appears slightly less expanded than the right lung field. The right lung field is expanded, but it appears slightly less expanded than the left lung field. The mediastinum is normal, and the heart is not visible. The trachea is not visible, and the esophagus is not visible. The ribs are expanded, and the costal cartilages are not visible. The pleural lines are not visible. The image is clear, and there are no shadows or other abnormalities.",
+      "seconds": 16.2,
+      "prompt_tokens": 1867,
+      "generated_tokens": 133,
+      "image_size": [
+        1152,
+        916
+      ]
+    },
+    {
+      "key": "wrist_fracture",
+      "title": "Radiograph of a Barton's fracture (wrist)",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/d/d6/Radiograph_of_Barton%27s_fracture.jpg",
+      "page": "https://commons.wikimedia.org/wiki/File:Radiograph_of_Barton%27s_fracture.jpg",
+      "author": "Mikael Häggström, M.D.",
+      "license": "CC0 1.0 (public domain dedication)",
+      "question": "Describe what anatomical region this radiograph shows and any visible bony abnormality. Do not provide a definitive diagnosis.",
+      "answer": "The radiograph shows the wrist region. The bones of the forearm are visible, including the radius and ulna. The radius is the larger of the two bones and is located on the thumb side of the forearm. The ulna is located on the other side of the forearm and is smaller than the radius. The bones of the wrist are also visible, including the carpals. The carpals are the small bones that form the wrist joint. The bones of the hand are also visible, including the metacarpals. The metacarpals are the long bones that form the palm of the hand. The bones of the fingers are also visible, including the phalanges. The phalanges are the small bones that form the fingers.",
+      "seconds": 10.9,
+      "prompt_tokens": 1500,
+      "generated_tokens": 149,
+      "image_size": [
+        319,
+        612
+      ]
+    }
+  ]
+}
