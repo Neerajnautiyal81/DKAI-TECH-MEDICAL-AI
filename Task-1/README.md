@@ -1,285 +1,280 @@
-# Task 1 — Vision-Language Model for Preliminary Clinical Image Analysis
+# Task 1 — Vision-Language Model Integration
 
 ## Overview
 
-This task implements a lightweight preliminary clinical imaging assistant using the open-source **SmolVLM-Instruct** vision-language model.
+This task implements an open-source Vision-Language Model (VLM) for preliminary clinical image analysis.
 
-The system accepts a medical image and a clinical question, then generates a text-based description of visible features and uncertainty.
-
-This project is intended for educational and research purposes only. It is not a medical device and must not be used as a substitute for professional medical diagnosis, treatment, or clinical decision-making.
+The system accepts a medical image and a user question, then generates a cautious, structured interpretation. The implementation is designed to run within the resource constraints of a free Google Colab environment.
 
 ---
 
 ## Model Selection
 
-### Selected Model
+The model selected for this task is:
 
-**SmolVLM-Instruct**
+**HuggingFaceTB/SmolVLM-Instruct**
 
-- Hugging Face model: `HuggingFaceTB/SmolVLM-Instruct`
-- Approximately 2.25 billion parameters
-- Architecture: Idefics3 with a SigLIP vision encoder and SmolLM2 language model
-- Open-source and ungated
-- Suitable for resource-constrained Google Colab environments
+SmolVLM-Instruct was selected because it is a relatively lightweight open-source Vision-Language Model that can be used in a resource-constrained Google Colab environment.
+
+The model combines visual and textual information to generate responses based on both the medical image and the user's question.
 
 ### Why SmolVLM-Instruct?
 
-SmolVLM-Instruct was selected because it provides image-and-text understanding while remaining small enough to run on a free-tier Google Colab GPU.
+The main reasons for selecting this model were:
 
-The main selection criteria were:
-
-- Open-source availability
-- Multimodal image and text support
-- Reasonable memory requirements
-- Compatibility with Google Colab
-- Support for instruction-based prompting
-- Ability to provide natural-language descriptions of medical images
-
-The relatively small model size makes it more practical for experimentation than larger vision-language models under limited GPU memory.
+- Open-source availability through Hugging Face
+- Multimodal image and text capabilities
+- Relatively lightweight compared with larger VLMs
+- Suitable for experimentation in free-tier Google Colab
+- Support through the Hugging Face Transformers ecosystem
+- Ability to apply memory-conscious inference strategies
 
 ---
 
 ## Memory Optimization
 
-The notebook uses several memory-conscious techniques:
+The notebook uses several techniques to reduce memory usage and make inference more practical in Google Colab.
 
-### Reduced Precision
+The implementation includes:
 
-The model is loaded using `float16` or `bfloat16` when supported by the available hardware.
+- Reduced-precision inference using BF16 or FP16 depending on available hardware
+- Automatic device placement using `device_map="auto"`
+- `low_cpu_mem_usage=True`
+- Optional 4-bit NF4 quantization using BitsAndBytes
 
-This substantially reduces memory consumption compared with full `float32` model weights.
+The 4-bit quantization path is optional and can be enabled depending on the available hardware and environment.
 
-### Automatic Device Placement
-
-`device_map="auto"` is used through Accelerate so that model components can be placed automatically on available hardware.
-
-### Low CPU Memory Usage
-
-`low_cpu_mem_usage=True` is used during model loading to reduce unnecessary host-memory duplication while loading model weights.
-
-### Optional 4-bit Quantization
-
-An optional 4-bit NF4 quantization path using BitsAndBytes is included in the notebook.
-
-It is disabled by default because SmolVLM-Instruct fits within the target Colab GPU environment without requiring quantization. Quantization can be enabled if GPU memory is more constrained.
-
----
-
-## Clinical Imaging System Prompt
-
-The notebook defines a dedicated system prompt for preliminary clinical image analysis.
-
-The prompt instructs the model to:
-
-1. Describe only features that are visually supported by the image.
-2. Separate visible observations from interpretation.
-3. Communicate uncertainty clearly.
-4. Avoid giving a definitive diagnosis.
-5. Avoid inventing patient demographics or clinical history.
-6. Avoid unsupported medical claims.
-7. State when an image is unreadable or unsuitable for interpretation.
-8. Recommend professional clinical review when appropriate.
-9. Avoid fabricating information that is not visible in the image.
-10. Use a structured response format covering observations and uncertainty.
-
-The system prompt is intended as a safety-oriented instruction layer. It does not guarantee that the model will always follow every instruction.
+These optimizations are intended to reduce memory consumption while maintaining practical inference performance.
 
 ---
 
 ## Reusable Inference Function
 
-The notebook implements a reusable function:
+A reusable inference function named:
 
-`analyze_medical_image(image, user_question)`
+`analyze_medical_image()`
 
-The function accepts:
+is implemented in the notebook.
+
+The function is designed to accept:
 
 - A PIL image
 - A local image path
-- An image URL
-- A clinical question or instruction
+- A publicly accessible image URL
+- A user-provided medical question
 
-It then:
+The function applies the clinical system prompt, performs model inference, decodes the generated response, and returns the answer together with inference metadata.
 
-1. Loads/prepares the image.
-2. Applies the clinical system prompt.
-3. Builds the multimodal input.
-4. Runs the SmolVLM-Instruct model.
-5. Decodes the generated response.
-6. Returns the generated answer together with useful runtime metadata.
-
-This allows the same inference pipeline to be reused across different medical images and questions.
+This makes it possible to evaluate additional medical images without rewriting the core inference pipeline.
 
 ---
 
-## Public Medical Image Demonstrations
+## Clinical Imaging Assistant System Prompt
 
-The notebook demonstrates the model on publicly available medical images.
+A dedicated clinical system prompt is used to guide the model toward cautious preliminary image interpretation.
 
-### Image 1 — Normal Chest Radiograph
+The prompt emphasizes:
 
-A publicly available PA chest radiograph is used as a normal example.
+- Describing only findings that are visibly supported by the image
+- Avoiding invented patient demographics or medical history
+- Communicating uncertainty clearly
+- Avoiding definitive diagnosis claims
+- Refusing or qualifying responses for unreadable or non-medical images
+- Separating visible observations from possible interpretations
+- Encouraging professional clinical review when appropriate
+- Producing a structured response
 
-The question asks the model to comment on whether the cardiac silhouette appears within normal limits and to explain what can and cannot be assessed from the image.
+The purpose of the prompt is to reduce unsupported claims and position the model as a preliminary imaging assistant rather than a diagnostic authority.
 
-### Image 2 — Lobar Pneumonia
+---
 
-A publicly available chest radiograph showing lobar pneumonia is used as an abnormal example.
+## Public Medical Images
 
-Using the same imaging modality for the normal and abnormal examples provides a simple qualitative comparison of model behaviour.
+The notebook demonstrates inference using publicly available medical images.
 
-### Image 3 — Barton's Fracture
+The examples include:
 
-An additional wrist radiograph showing a Barton's fracture is included as an optional third demonstration.
+1. Normal PA chest radiograph
+2. Lobar pneumonia chest radiograph
 
-This tests whether the model can identify a different anatomical region and imaging context.
+The notebook also contains an optional example involving a wrist radiograph.
 
-The medical images are sourced from Wikimedia Commons and are used as publicly available examples for educational demonstration.
+The images are accessed through public URLs, so large medical image files do not need to be stored in the repository.
+
+---
+
+## Inference Pipeline
+
+The overall workflow is:
+
+```text
+Medical Image + User Question
+            ↓
+     Image Preprocessing
+            ↓
+      SmolVLM-Instruct
+            ↓
+    Clinical System Prompt
+            ↓
+      Model Inference
+            ↓
+   Structured Interpretation
+```
+
+The design keeps image loading, prompting, inference, and output handling separated so that the pipeline can be reused for additional images.
 
 ---
 
 ## Sample Outputs
 
-The generated model outputs are stored in the `outputs/` directory.
-
-The output files are:
-
-- `sample_outputs.json` — structured output, runtime metadata, model information, questions, and generated responses.
-- `sample_outputs.md` — human-readable version of the sample outputs.
-
-The outputs are preserved as generated by the model and may contain errors or unsupported statements.
-
----
-
-## How to Run
-
-### Google Colab
-
-1. Open `clinical_vlm_colab.ipynb` in Google Colab.
-2. Select a GPU runtime if available.
-3. Run the notebook cells from top to bottom.
-4. Install the required dependencies in the installation section.
-5. Allow the model and processor to download from Hugging Face.
-6. Check the detected GPU and data type.
-7. Load the SmolVLM-Instruct model.
-8. Run the clinical system-prompt section.
-9. Run the reusable inference function.
-10. Run the medical-image demonstration sections.
-11. Generate and save the sample outputs.
-
-A GPU is recommended for practical inference speed.
-
----
-
-## Design Choices
-
-The implementation prioritizes:
-
-- A small open-source VLM suitable for Colab.
-- Memory-efficient model loading.
-- A reusable inference function.
-- A dedicated clinical imaging system prompt.
-- Publicly available medical image examples.
-- Structured sample outputs.
-- Explicit limitations and ethical considerations.
-
-The system is designed as a demonstration of multimodal inference rather than a clinically validated diagnostic system.
-
----
-
-## Limitations
-
-### 1. General-Purpose Model
-
-SmolVLM-Instruct is a general-purpose vision-language model and is not a clinically validated diagnostic model.
-
-It was not developed as a replacement for radiologists or other qualified medical professionals.
-
-### 2. Image Quality
-
-Image resolution, exposure, positioning, projection, and other image characteristics can affect the generated response.
-
-The notebook also applies image processing and resizing, meaning that subtle findings may not remain visible to the model.
-
-### 3. Hallucination
-
-The model may generate plausible-sounding findings that are not actually present in the image.
-
-A fluent response should therefore not be interpreted as evidence that the response is correct.
-
-### 4. Missed Findings
-
-The model may fail to identify subtle abnormalities.
-
-Failure to mention an abnormality should not be interpreted as evidence that the abnormality is absent.
-
-### 5. False Positives and False Negatives
-
-The model can produce both incorrect positive findings and incorrect negative findings.
-
-Both can be harmful in a clinical setting.
-
-### 6. Limited Demonstration Set
-
-Only a small number of publicly available medical images are used in this notebook.
-
-These examples are demonstrations of the pipeline and are not sufficient for measuring clinical accuracy or generalization.
-
-### 7. No Clinical Validation
-
-This project does not provide quantitative clinical validation.
-
-A proper evaluation would require a representative labelled dataset, predefined evaluation metrics, expert ground truth, and comparison with appropriate clinical baselines.
-
-### 8. System Prompt Limitations
-
-The system prompt is an instruction to the model rather than a hard safety constraint.
-
-The model may still fail to follow the requested response structure or may generate unsupported claims.
-
-### 9. Educational Use Only
-
-The generated outputs must not be used to make medical decisions.
-
-Professional clinical review is required for real-world medical interpretation.
-
----
-
-## Repository Structure
+Sample inference results generated by the notebook are included in the `outputs` directory.
 
 ```text
-Task-1/
-├── clinical_vlm_colab.ipynb
-├── README.md
-└── outputs/
-    ├── sample_outputs.json
-    └── sample_outputs.md
+outputs/
+├── sample_outputs.json
+└── sample_outputs.md
+```
 
+The JSON file provides structured output, while the Markdown file provides a human-readable representation of the sample results.
+
+---
 
 ## Assignment Coverage
 
 | Assignment Requirement | Implementation |
 |---|---|
 | Explain model selection | SmolVLM-Instruct selection and justification |
-| Memory optimization | Reduced precision, Accelerate, automatic device placement, low CPU memory usage, optional 4-bit path |
+| Memory optimization | Reduced precision, automatic device placement, low CPU memory usage, and optional 4-bit NF4 quantization |
 | Reusable inference function | `analyze_medical_image()` |
-| Clinical imaging system prompt | Dedicated clinical imaging assistant prompt |
-| At least two public medical images | Normal chest radiograph and lobar pneumonia radiograph |
+| Clinical imaging system prompt | Dedicated preliminary clinical imaging assistant prompt |
+| At least two public medical images | Normal chest radiograph and lobar pneumonia chest radiograph |
+| Notebook | `clinical_vlm_colab.ipynb` |
 | Sample outputs | `outputs/sample_outputs.json` and `outputs/sample_outputs.md` |
-| Design choices and limitations | Documented in this README and notebook |
+| Design choices and limitations | Documented in this README and the notebook |
 
+---
 
-## Saving Outputs
+## How to Run
 
-After running the notebook, the generated sample results are saved in the `outputs/` directory:
+The notebook is designed primarily for Google Colab.
 
-- `outputs/sample_outputs.json`
-- `outputs/sample_outputs.md`
+### Recommended Environment
 
-When running the notebook in Google Colab, these files can be downloaded from the Colab Files panel and placed in the repository's `Task-1/outputs/` folder.
+- Google Colab
+- Python 3
+- GPU recommended for faster inference
+- CPU may be used depending on available memory and model configuration
 
-## Disclaimer
+### Steps
 
-This project is for educational and research purposes only.
+1. Open `clinical_vlm_colab.ipynb` in Google Colab.
+2. Select a GPU runtime if available.
+3. Run the notebook cells from top to bottom.
+4. Install the required Python dependencies when prompted.
+5. Load the SmolVLM-Instruct model.
+6. Run the reusable inference function on the included public medical image examples.
+7. Review the generated sample outputs.
 
-The model outputs are generated by a general-purpose vision-language model and may be incorrect, incomplete, or misleading. They must not be treated as medical diagnoses or used for clinical decision-making.
+The notebook contains the required configuration and model-loading code.
+
+---
+
+## Expected Output
+
+The model generates a preliminary clinical image interpretation based on the provided image and question.
+
+The response is designed to distinguish between:
+
+- Visible findings
+- Possible interpretation
+- Uncertainty
+- Appropriate clinical caution
+
+The outputs should be interpreted as model-generated preliminary observations rather than confirmed diagnoses.
+
+---
+
+## Design Decisions
+
+### Lightweight Model
+
+SmolVLM-Instruct was selected to balance multimodal capability with the memory constraints of free-tier Colab.
+
+### Reusable Interface
+
+The `analyze_medical_image()` function provides a consistent interface for processing different images and questions.
+
+### Prompt-Based Safety
+
+The clinical system prompt encourages the model to avoid unsupported claims and communicate uncertainty.
+
+### Public Image URLs
+
+Public medical image URLs were used instead of storing image files in the repository. This keeps the repository lightweight and makes the notebook easier to reproduce.
+
+### Resource-Aware Inference
+
+Reduced precision, automatic device placement, and optional quantization help make model inference more practical under limited hardware resources.
+
+---
+
+## Limitations
+
+This implementation is a technical demonstration and is not a clinical diagnostic system.
+
+Important limitations include:
+
+- Vision-Language Models can hallucinate findings
+- Image quality can strongly affect the generated response
+- The model may miss subtle abnormalities
+- The model can generate clinically plausible but incorrect interpretations
+- The model does not have access to complete patient history
+- The model does not have access to laboratory results or prior imaging
+- Public medical images may not represent the diversity of real-world clinical data
+- Results can vary depending on hardware, software versions, and numerical precision
+- The system has not been clinically validated
+- Generated interpretations should not be treated as medical diagnoses
+
+A qualified healthcare professional should review medical imaging when used in any real clinical context.
+
+---
+
+## Ethical and Safety Considerations
+
+The system is intended for educational and technical demonstration purposes.
+
+It should not be used to make independent clinical decisions.
+
+Medical image interpretation is a high-stakes task, and an AI-generated response can be incorrect even when it appears medically plausible.
+
+Any real-world clinical deployment would require appropriate validation, clinical oversight, safety evaluation, privacy controls, and regulatory consideration.
+
+---
+
+## Repository Contents
+
+```text
+Task-1/
+├── README.md
+├── clinical_vlm_colab.ipynb
+└── outputs/
+    ├── sample_outputs.json
+    └── sample_outputs.md
+```
+
+---
+
+## Conclusion
+
+This task demonstrates a lightweight open-source Vision-Language Model pipeline for preliminary medical image analysis.
+
+The implementation combines:
+
+- SmolVLM-Instruct
+- Memory-aware model loading
+- A reusable inference function
+- A clinical imaging assistant system prompt
+- Public medical image examples
+- Structured sample outputs
+
+The system demonstrates how multimodal AI can be integrated into a medical imaging workflow while explicitly recognizing the limitations and safety considerations associated with AI-generated clinical interpretations.
