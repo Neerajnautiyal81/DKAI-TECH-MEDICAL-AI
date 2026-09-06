@@ -10,20 +10,20 @@ This repository contains three independent tasks covering:
 
 Task 1 and Task 2 are mandatory. Task 3 is an optional bonus task.
 
----
-
 # Project Structure
 
+```text
 DKAI-TECH-MEDICAL-AI/
-
+│
 ├── README.md
-
+│
 ├── Task-1/
+│   ├── README.md
 │   ├── clinical_vlm_colab.ipynb
 │   └── outputs/
 │       ├── sample_outputs.json
 │       └── sample_outputs.md
-
+│
 ├── Task-2/
 │   ├── medical_rag_colab.ipynb
 │   └── medical_corpus/
@@ -43,7 +43,7 @@ DKAI-TECH-MEDICAL-AI/
 │       ├── 14_uti.md
 │       ├── 15_hypothyroidism.md
 │       └── 16_amr_stewardship.md
-
+│
 └── Task-3/
     ├── clinical_dataset_pipeline.ipynb
     ├── data/
@@ -51,8 +51,7 @@ DKAI-TECH-MEDICAL-AI/
     └── outputs/
         ├── cleaned_clinical_dataset.csv
         └── clinical_instruction_dataset.jsonl
-
----
+```
 
 # Task 1 — Vision-Language Model Integration
 
